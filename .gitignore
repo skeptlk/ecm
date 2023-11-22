@@ -1,5 +1,7 @@
 *.csv
 *.xlsx
 *.tsx
+*.bkup
+*.pkl
 
 **/catboost_info/
