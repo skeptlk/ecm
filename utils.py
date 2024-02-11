@@ -1,4 +1,5 @@
 import pandas as pd
+import matplotlib.pyplot as plt
 from typing import List
 
 def get_recursive_features(data: List[pd.DataFrame], features = [], n_back = 1):
@@ -34,3 +35,28 @@ def build_dataset(fleet: List[pd.DataFrame], y_cols, meta_cols, features, n_back
     n_back
   )
 
+# Get exponential rolling average with smothing factor alpha
+def smooth(x: pd.Series, alpha=0.5):
+  return pd.Series(x).ewm(alpha=alpha, adjust=False).mean().to_list()
+
+def plot_predictions(data, acnum, pos, train_i, predicted_test, predicted_train, is_smooth=True, figsize=(14, 7), title=None):
+  data.loc[:train_i-1, 'pred_train'] = predicted_train
+  data.loc[train_i:, 'pred_test'] = predicted_test
+
+  sub = data[(data['acnum'] == acnum) & (data['pos'] == pos)]
+  train_i2 = sub['pred_train'].count()
+
+  plt.figure(figsize=figsize)
+
+  if is_smooth:
+    plt.plot(sub['reportts'][:train_i2], smooth(sub['pred_train'][:train_i2], alpha=1/10), '-')
+    plt.plot(sub['reportts'], smooth(sub['pred_test'], alpha=1/10), '-')
+  else:
+    plt.scatter(sub['reportts'][:train_i2], sub['pred_train'][:train_i2], s=2)
+    plt.scatter(sub['reportts'], sub['pred_test'], s=2)
+
+  plt.plot(sub['reportts'], sub['egtm'], '-', color='#2ca02c')
+
+  plt.title(f'Linear model of EGTM on {acnum} engine {pos}, Gas path params' if title is None else title)
+  plt.legend(['train_pred', 'test_pred', 'true'])
+  plt.show()
