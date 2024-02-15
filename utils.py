@@ -2,6 +2,30 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from typing import List
 
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+
+
+def train_model(X, y, model = 'linreg'):
+  assert len(X) == len(y)
+  train_i = int(len(X) * 75 / 100)
+  X_train, y_train = X[0:train_i], y[0:train_i]
+  X_test, y_test = X[train_i:], y[train_i:]
+
+  model = LinearRegression()
+
+  model.fit(X_train, y_train)
+
+  predicted_train = model.predict(X_train)
+
+  predicted_test = model.predict(X_test)
+  mse = mean_squared_error(y_test, predicted_test, squared=False)
+  mae = mean_absolute_error(y_test, predicted_test)
+  r2 = r2_score(y_test, predicted_test)
+
+  return mse, mae, r2, model, predicted_train, predicted_test, train_i, y_test
+
+
 def get_recursive_features(data: List[pd.DataFrame], features = [], n_back = 1):
   result = []
   rest_features = list(set(data[0].columns) - set(features))
@@ -28,6 +52,7 @@ def get_recursive_features(data: List[pd.DataFrame], features = [], n_back = 1):
               .drop(columns=['index'])
   return result
 
+
 def build_dataset(fleet: List[pd.DataFrame], y_cols, meta_cols, features, n_back=1):
   return get_recursive_features(
     [df[y_cols + meta_cols + features] for df in fleet],
@@ -35,9 +60,11 @@ def build_dataset(fleet: List[pd.DataFrame], y_cols, meta_cols, features, n_back
     n_back
   )
 
+
 # Get exponential rolling average with smothing factor alpha
 def smooth(x: pd.Series, alpha=0.5):
   return pd.Series(x).ewm(alpha=alpha, adjust=False).mean().to_list()
+
 
 def plot_predictions(data, acnum, pos, train_i, predicted_test, predicted_train, is_smooth=True, figsize=(14, 7), title=None):
   data.loc[:train_i-1, 'pred_train'] = predicted_train
