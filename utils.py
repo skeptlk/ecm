@@ -33,23 +33,26 @@ def get_recursive_features(data: List[pd.DataFrame], features = [], n_back = 1):
   
   for acdata in data:
     for pos in [1, 2]:
-      df = acdata[acdata['pos'] == pos].copy().reset_index()
+      df = acdata[acdata['pos'] == pos].copy().reset_index(drop=True)
       if df.shape[0] == 0:
         continue
       X = df[features]
       X_aug = X.copy()
+
       for offset in range(1, n_back + 1):
         features_back = [f"{i}_{offset}" for i in features]
-        X_aug.loc[0:offset, features_back] =  X.iloc[0,:].to_numpy()
+        X_aug.loc[0:offset, features_back] =  X.iloc[0].to_numpy()
         X_aug.loc[offset:, features_back] = X.iloc[:-offset,:].to_numpy()
       
-      X_aug.loc[:, rest_features] = df[rest_features]
+      X_aug = pd.concat([df[rest_features], X_aug], axis=1)
       result.append(X_aug)
+
+  result = pd.concat(result)
+
+  if ('reportts' in rest_features):
+    result = result.sort_values('reportts') \
+              .reset_index(drop=True)
   
-  result = pd.concat(result) \
-              .sort_values('reportts' if 'reportts' in rest_features else 'pos') \
-              .reset_index() \
-              .drop(columns=['index'])
   return result
 
 
