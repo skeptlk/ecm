@@ -87,3 +87,33 @@ def plot_predictions(data, acnum, pos, train_i, predicted_test, predicted_train,
   plt.title(f'Linear model of EGTM on {acnum} engine {pos}, Gas path params' if title is None else title)
   plt.legend(['train_pred', 'test_pred', 'true'])
   plt.show()
+
+def plot_predictions_for_print(
+    data, acnum, pos, train_i, predicted_test, predicted_train, 
+    figsize=(14, 7), split_date=pd.to_datetime('2019-08-06'), title=None
+):
+  data.loc[:train_i-1, 'pred_train'] = predicted_train
+  data.loc[train_i:, 'pred_test'] = predicted_test
+
+  sub = data[(data['acnum'] == acnum) & (data['pos'] == pos)]
+  train_i2 = sub['pred_train'].count()
+
+  plt.figure(figsize=figsize)
+
+  plt.plot(sub['reportts'], sub['egtm'], '-', color='blue')
+
+  smooth_train = smooth(sub['pred_train'][:train_i2], alpha=1/10)
+  smooth_test = smooth(sub['pred_test'], alpha=1/10)
+
+  plt.plot(sub['reportts'][:train_i2], smooth_train, '--', linewidth=2, color='red')
+  plt.plot(sub['reportts'], smooth_test, '--', linewidth=2, color='red')
+  
+  plt.plot((split_date, split_date), (16, 40), '-', color='black')
+
+  plt.text(split_date + pd.tseries.offsets.Day(2),  40 - 1, 'Test')
+  plt.text(split_date - pd.tseries.offsets.Day(15),  40 - 1, 'Train')
+
+  if title:
+    plt.title(title)
+  plt.legend(['Факт', 'Прогноз'])
+  plt.show()
