@@ -16,15 +16,14 @@ def get_metrics(y, y_pred, round_n=5):
 def correct(data):
   datak = data.copy()
   alpha = 0.5
-  theta = (data['tat'] + 273.15) / 288.15
-  theta_oat = (data['oat'] + 273.15) / 288.15
-  delta = data['p2e'] + 1013.25
+  theta = (data['oat'] + 273.15) / 288.15
+  delta = (data['p2e'] * 68.948) / 1013.25
 
-  datak['nfk'] = data['nf'] / (theta_oat ** alpha)
-  datak['n1ak'] = data['n1a'] / (theta_oat ** alpha)
-  datak['n1k'] = data['n1'] / (theta_oat ** alpha)
-  datak['n2ak'] = data['n2a'] / (theta_oat ** alpha)
+  datak['nfk'] = data['nf'] / (theta ** alpha)
+  datak['n1ak'] = data['n1a'] / (theta ** alpha)
+  datak['n1k'] = data['n1'] / (theta ** alpha)
+  datak['n2ak'] = data['n2a'] / (theta ** alpha)
   datak['egtk'] = (data['egt'] + 273.15) / theta
-  datak['ffk'] = (data['ff']) / (delta * (theta_oat ** alpha))
+  datak['ffk'] = (data['ff']) / (delta * (theta ** alpha))
 
   return datak
