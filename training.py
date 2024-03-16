@@ -23,7 +23,7 @@ def correct(data):
   datak['n1ak'] = data['n1a'] / (theta ** alpha)
   datak['n1k'] = data['n1'] / (theta ** alpha)
   datak['n2ak'] = data['n2a'] / (theta ** alpha)
-  datak['egtk'] = (data['egt'] + 273.15) / theta
+  datak['egtk'] = (data['egt'] + 273.15) / (theta ** 0.84)
   datak['ffk'] = (data['ff']) / (delta * (theta ** alpha))
 
   return datak
