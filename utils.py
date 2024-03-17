@@ -69,7 +69,7 @@ def smooth(x: pd.Series, alpha=0.5):
   return pd.Series(x).ewm(alpha=alpha, adjust=False).mean().to_list()
 
 
-def plot_predictions(data, acnum, pos, train_i, predicted_test, predicted_train, is_smooth=True, figsize=(14, 7), title=None):
+def plot_predictions(data, acnum, pos, train_i, predicted_test, predicted_train, is_smooth=True, figsize=(14, 7), title=None, alpha=1/10):
   data.loc[:train_i-1, 'pred_train'] = predicted_train
   data.loc[train_i:, 'pred_test'] = predicted_test
 
@@ -79,8 +79,8 @@ def plot_predictions(data, acnum, pos, train_i, predicted_test, predicted_train,
   plt.figure(figsize=figsize)
 
   if is_smooth:
-    plt.plot(sub['reportts'][:train_i2], smooth(sub['pred_train'][:train_i2], alpha=1/10), '-')
-    plt.plot(sub['reportts'], smooth(sub['pred_test'], alpha=1/10), '-')
+    plt.plot(sub['reportts'][:train_i2], smooth(sub['pred_train'][:train_i2], alpha=alpha), '-')
+    plt.plot(sub['reportts'], smooth(sub['pred_test'], alpha=alpha), '-')
   else:
     plt.scatter(sub['reportts'][:train_i2], sub['pred_train'][:train_i2], s=2)
     plt.scatter(sub['reportts'], sub['pred_test'], s=2)
