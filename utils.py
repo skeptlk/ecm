@@ -79,8 +79,10 @@ def plot_predictions(data, acnum, pos, train_i, predicted_test, predicted_train,
   plt.figure(figsize=figsize)
 
   if is_smooth:
-    plt.plot(sub['reportts'][:train_i2], smooth(sub['pred_train'][:train_i2], alpha=alpha), '-')
-    plt.plot(sub['reportts'], smooth(sub['pred_test'], alpha=alpha), '-')
+    series = pd.concat([sub['pred_train'][:train_i2], sub['pred_test'][train_i2:]])
+    smoothed = smooth(series, alpha=alpha)
+    plt.plot(sub['reportts'][:train_i2], smoothed[:train_i2], '-')
+    plt.plot(sub['reportts'][train_i2:], smoothed[train_i2:], '-')
   else:
     plt.scatter(sub['reportts'][:train_i2], sub['pred_train'][:train_i2], s=2)
     plt.scatter(sub['reportts'], sub['pred_test'], s=2)
