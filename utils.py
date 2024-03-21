@@ -70,21 +70,25 @@ def smooth(x: pd.Series, alpha=0.5):
 
 
 def plot_predictions(data, acnum, pos, train_i, predicted_test, predicted_train, is_smooth=True, figsize=(14, 7), title=None, alpha=1/10):
-  data.loc[:train_i-1, 'pred_train'] = predicted_train
-  data.loc[train_i:, 'pred_test'] = predicted_test
+  data = pd.concat([
+    data.drop(columns=['pred_test', 'pred_train']), 
+    predicted_test.rename(columns={'pred': 'pred_test'}), 
+    predicted_train.rename(columns={'pred': 'pred_train'})
+  ], axis=1)
 
-  sub = data[(data['acnum'] == acnum) & (data['pos'] == pos)]
+  sub = data.query(f'acnum=="{acnum}" and pos=={pos}')
+
   train_i2 = sub['pred_train'].count()
 
   plt.figure(figsize=figsize)
 
   if is_smooth:
-    series = pd.concat([sub['pred_train'][:train_i2], sub['pred_test'][train_i2:]])
+    series = sub['pred_train'].dropna().to_list() + sub['pred_test'].dropna().to_list()
     smoothed = smooth(series, alpha=alpha)
     plt.plot(sub['reportts'][:train_i2], smoothed[:train_i2], '-')
     plt.plot(sub['reportts'][train_i2:], smoothed[train_i2:], '-')
   else:
-    plt.scatter(sub['reportts'][:train_i2], sub['pred_train'][:train_i2], s=2)
+    plt.scatter(sub['reportts'], sub['pred_train'], s=2)
     plt.scatter(sub['reportts'], sub['pred_test'], s=2)
 
   plt.plot(sub['reportts'], sub['egtm'], '-', color='#2ca02c')
@@ -92,6 +96,7 @@ def plot_predictions(data, acnum, pos, train_i, predicted_test, predicted_train,
   plt.title(f'Linear model of EGTM on {acnum} engine {pos}, Gas path params' if title is None else title)
   plt.legend(['train_pred', 'test_pred', 'true'])
   plt.show()
+
 
 def plot_predictions_for_print(
     data, acnum, pos, train_i, predicted_test, predicted_train, 
