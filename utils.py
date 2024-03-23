@@ -71,7 +71,7 @@ def smooth(x: pd.Series, alpha=0.5):
 
 def plot_predictions(data, acnum, pos, train_i, predicted_test, predicted_train, is_smooth=True, figsize=(14, 7), title=None, alpha=1/10):
   data = pd.concat([
-    data.drop(columns=['pred_test', 'pred_train']), 
+    data.drop(columns=['pred_test', 'pred_train'], errors='ignore'), 
     predicted_test.rename(columns={'pred': 'pred_test'}), 
     predicted_train.rename(columns={'pred': 'pred_train'})
   ], axis=1)
