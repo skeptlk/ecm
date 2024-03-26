@@ -88,8 +88,8 @@ def plot_predictions(data, acnum, pos, train_i, predicted_test, predicted_train,
     plt.plot(sub['reportts'][:train_i2], smoothed[:train_i2], '-')
     plt.plot(sub['reportts'][train_i2:], smoothed[train_i2:], '-')
   else:
-    plt.scatter(sub['reportts'], sub['pred_train'], s=2)
-    plt.scatter(sub['reportts'], sub['pred_test'], s=2)
+    plt.scatter(sub['reportts'], sub['pred_train'], s=1)
+    plt.scatter(sub['reportts'], sub['pred_test'], s=1)
 
   plt.plot(sub['reportts'], sub['egtm'], '-', color='#2ca02c')
 
