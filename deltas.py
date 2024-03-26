@@ -18,11 +18,17 @@ def add_egt_delta_to_dataset(dataset: pd.DataFrame, bleed_param='prv', fleet=[])
     for pos in [1, 2]:
       for bleed in [0, 1]:
         subset_index = (dataset['pos'] == pos) & (dataset['acnum'] == acnum) & (dataset[bleed_param] == bleed)
+        if dataset[subset_index].shape[0] == 0:
+          continue
         baseline = train_engine_baseline(dataset[subset_index])
         egt_delta = compute_egtm(dataset[subset_index], baseline)
         dataset.loc[subset_index, 'egt_delta'] = egt_delta
 
       subset_index = (dataset['pos'] == pos) & (dataset['acnum'] == acnum) 
+      
+      if dataset[subset_index].shape[0] == 0:
+        continue
+      
       egt_delta = dataset.loc[subset_index, 'egt_delta']
       egt_delta_smooth = smooth(egt_delta, 0.05)
       dataset.loc[subset_index, 'egt_delta_smooth'] = egt_delta_smooth
