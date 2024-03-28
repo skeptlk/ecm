@@ -45,8 +45,9 @@ leg = alt.Legend(
     legendY=30,
 )
 
-egtm = alt.Chart(df, height=700) \
-  .mark_line(interpolate="basis") \
+base = alt.Chart(df, height=700)
+
+egtm = base.mark_line(interpolate="basis") \
   .transform_calculate(line="'EGTM'") \
   .encode(
     x=alt.X('reportts:T'),
@@ -54,9 +55,8 @@ egtm = alt.Chart(df, height=700) \
     color=alt.Color('line:N', legend=leg)
   )
 
-delta = alt.Chart(df, height=700) \
+delta = base.mark_point(filled=True) \
   .transform_calculate(line="'EGT Delta'") \
-  .mark_point(filled=True) \
   .encode(
     x=alt.X('reportts:T'),
     y=alt.Y('egt_delta', title=""),
@@ -64,15 +64,16 @@ delta = alt.Chart(df, height=700) \
     color=alt.Color('line:N', legend=leg)
   )
 
-delta_smooth = alt.Chart(df, height=700) \
+delta_smooth = base.mark_line(interpolate="basis") \
   .transform_calculate(line="'EGT Delta Smooth'") \
-  .mark_line(interpolate="basis") \
   .encode(
     x=alt.X('reportts:T', title="Reported time"),
     y=alt.Y('egt_delta_smooth', title=""),
     color=alt.Color('line:N', legend=leg)
   )
 
-chart = egtm + delta + delta_smooth
+alt.themes.enable("googlecharts")
 
-col2.altair_chart(chart, use_container_width=True)
+chart = alt.layer(egtm + delta_smooth + delta)
+
+col2.altair_chart(chart, use_container_width=True, theme=None)
