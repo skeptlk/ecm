@@ -56,12 +56,19 @@ def get_recursive_features(data: List[pd.DataFrame], features = [], n_back = 1):
   return result
 
 
-def build_dataset(fleet: List[pd.DataFrame], y_cols, meta_cols, features, n_back=1):
-  return get_recursive_features(
-    [df[y_cols + meta_cols + features] for df in fleet],
-    features, 
-    n_back
-  )
+def build_dataset(fleet: List[pd.DataFrame], y_cols, meta_cols, features, n_back=1, data: pd.DataFrame = None):
+  if data is None:
+    return get_recursive_features(
+      [df[y_cols + meta_cols + features] for df in fleet],
+      features, 
+      n_back
+    )
+  else:
+    return get_recursive_features(
+      [data[data['acnum'] == acnum][y_cols + meta_cols + features] for acnum in fleet],
+      features, 
+      n_back
+    )
 
 
 # Get exponential rolling average with smothing factor alpha

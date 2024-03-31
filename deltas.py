@@ -13,15 +13,22 @@ def compute_egtm(points: pd.DataFrame, model: LinearRegression, x_param='n1ak'):
   return delta + offset
 
 
-def add_egt_delta_to_dataset(dataset: pd.DataFrame, bleed_param='prv', fleet=[]):
+def add_egt_delta_to_dataset(dataset: pd.DataFrame, bleed_param='prv', fleet=[], early=False):
   for acnum in fleet: 
     for pos in [1, 2]:
       for bleed in [0, 1]:
         subset_index = (dataset['pos'] == pos) & (dataset['acnum'] == acnum) & (dataset[bleed_param] == bleed)
-        if dataset[subset_index].shape[0] == 0:
+        subset = dataset[subset_index]
+        
+        if subset.shape[0] == 0:
           continue
-        baseline = train_engine_baseline(dataset[subset_index])
-        egt_delta = compute_egtm(dataset[subset_index], baseline)
+
+        early_start = subset.iloc[0]['reportts'] + pd.to_timedelta('0')
+        early_end = subset.iloc[0]['reportts'] + pd.to_timedelta('30D')
+        early_filter = (subset['reportts'] >= early_start) & (subset['reportts'] <= early_end) 
+
+        baseline = train_engine_baseline(subset[early_filter] if early else subset)
+        egt_delta = compute_egtm(subset, baseline)
         dataset.loc[subset_index, 'egt_delta'] = egt_delta
 
       subset_index = (dataset['pos'] == pos) & (dataset['acnum'] == acnum) 
