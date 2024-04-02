@@ -1,13 +1,45 @@
+from sklearn.linear_model import Ridge
 import streamlit as st 
 import pandas as pd
 import altair as alt
+from training import *
+from deltas import *
 
 st.set_page_config(layout="wide")
 st.write('## ECM P&W1000g models')
 
+def predict_boolean_ensemble(models: List[Ridge], X: pd.DataFrame, field='nai'):
+  pred = pd.DataFrame(index=X.index.copy(), columns=['pred'])
+  for val in [True, False]:
+    index = (X[field] == val)
+    pred.loc[index, 'pred'] = models[val].predict(X[index])
+  return pred
+
 @st.cache_data
 def get_data():
-  return pd.read_csv("https://drive.google.com/uc?export=view&id=1wCaZH0A-r6QRdMvAnwtKn8L1nUREWcn9", parse_dates=['reportts'])
+  return pd.read_csv(
+    "https://drive.google.com/uc?export=view&id=1wCaZH0A-r6QRdMvAnwtKn8L1nUREWcn9", 
+    parse_dates=['reportts']
+  )
+
+@st.cache_data
+def get_model():
+  return pd.read_csv(
+    "https://drive.google.com/uc?export=view&id=1puggbyIP06GcqQdMHQBGRRrGDlOVMLG3", 
+    parse_dates=['reportts']
+  )
+
+@st.cache_data
+def evaluate_model(model, acnum, acms_data):
+  acms_corrrected = correct(acms_data)
+  X = add_egt_delta_to_dataset(
+    acms_corrrected, 
+    x_param='n1a_peak_k', 
+    y_param='egt_peak_k', 
+    fleet=[acnum], 
+    early=True
+  )
+  return predict_boolean_ensemble(model, X, field='prv')
 
 fleet = [
   "VQ-BDU",
@@ -37,12 +69,17 @@ is_clicked = col1.button("Predict")
 
 df = get_data().query(f'acnum=="{acnum}" and pos=={pos}')
 
+model = get_model()
+
+pred = None 
+if is_clicked:
+  pred = evaluate_model(model, acnum)
 
 leg = alt.Legend(
-    title="",
-    orient='none',
-    legendX=930,
-    legendY=30,
+  title="",
+  orient='none',
+  legendX=930,
+  legendY=30,
 )
 
 base = alt.Chart(df, height=700)
