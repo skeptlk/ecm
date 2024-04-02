@@ -6,7 +6,7 @@ from utils import *
 from training import * 
 
 def train_engine_baseline(points: pd.DataFrame, x_param='n1ak', y_param='egtk'):
-  model = make_pipeline(PolynomialFeatures(2), LinearRegression())
+  model = make_pipeline(PolynomialFeatures(1), LinearRegression())
   model.fit(points[[x_param]], points[y_param])
   return model
 

@@ -18,7 +18,7 @@ def correct(data):
   alpha = 0.5
   alpha_2 = 0.84
 
-  theta = (data['t2'] + 273.16) / (288.16)
+  theta = (data['oat_peak'] + 273.16) / (288.16)
   delta = data['p2e'] / 29.92
 
   datak['nfk'] = data['nf'] / (theta ** alpha)
@@ -30,6 +30,6 @@ def correct(data):
   datak['ffk'] = (data['ff']) / (delta * (theta ** 0.59))
 
   datak['egt_peak_k'] = (data['egt_peak'] + 273.16) / (theta ** alpha_2)
-  datak['n1a_peak_k'] = data['n1a_peak'] / (theta ** alpha)
+  datak['n1a_peak_k'] = data['n1_peak'] / (theta ** alpha)
 
   return datak
