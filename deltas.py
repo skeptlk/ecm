@@ -5,13 +5,18 @@ from sklearn.pipeline import make_pipeline
 from utils import * 
 from training import * 
 
-def train_engine_baseline(points: pd.DataFrame, x_param='n1ak', y_param='egtk'):
-  model = make_pipeline(PolynomialFeatures(1), LinearRegression())
+def train_engine_baseline(points: pd.DataFrame, x_param='n1a_peak_k', y_param='egt_peak_k', degree=1):
+  model = make_pipeline(PolynomialFeatures(degree), LinearRegression())
   model.fit(points[[x_param]], points[y_param])
   return model
 
-def compute_egtm(points: pd.DataFrame, model: LinearRegression, x_param='n1ak', y_param='egtk'):
-  offset = 35
+def compute_egtm(
+    points: pd.DataFrame, 
+    model: LinearRegression, 
+    x_param='n1a_peak_k', 
+    y_param='egt_peak_k', 
+    offset=35
+):
   delta = model.predict(points[[x_param]]) - points[y_param]
   return delta + offset
 
@@ -19,8 +24,8 @@ def compute_egtm(points: pd.DataFrame, model: LinearRegression, x_param='n1ak', 
 def add_egt_delta_to_dataset(
     dataset: pd.DataFrame, 
     bleed_param = 'prv', 
-    x_param='n1ak', 
-    y_param='egtk',
+    x_param='n1a_peak_k', 
+    y_param='egt_peak_k',
     fleet = [], 
     early = False, 
     interval = pd.to_timedelta('30D'),
