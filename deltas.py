@@ -15,10 +15,21 @@ def compute_egtm(
     model: LinearRegression, 
     x_param='n1a_peak_k', 
     y_param='egt_peak_k', 
-    offset=35
+    egt_limit=35
 ):
   delta = model.predict(points[[x_param]]) - points[y_param]
-  return delta + offset
+  return delta + egt_limit
+
+def compute_egtm_2(
+    points: pd.DataFrame, 
+    model: LinearRegression, 
+    x_param='n1a_peak_k', 
+    y_param='egt_peak_k', 
+    egt_limit=35.461
+):
+  delta = model.predict(points[[x_param]]) - points[y_param]
+  return 0.8 * delta + egt_limit
+
 
 
 def add_egt_delta_to_dataset(

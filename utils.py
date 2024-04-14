@@ -26,7 +26,7 @@ def train_model(X, y, model = 'linreg'):
   return mse, mae, r2, model, predicted_train, predicted_test, train_i, y_test
 
 
-def get_recursive_features(data: List[pd.DataFrame], features = [], n_back = 1, n_forward = 1):
+def get_recursive_features(data: List[pd.DataFrame], features = [], n_back = 1):
   result = []
   rest_features = list(set(data[0].columns) - set(features))
   assert len(rest_features + features) == len(data[0].columns)
@@ -43,12 +43,6 @@ def get_recursive_features(data: List[pd.DataFrame], features = [], n_back = 1, 
         features_back = [f"{i}_{offset}" for i in features]
         X_aug.loc[0:offset, features_back] =  X.iloc[0].to_numpy()
         X_aug.loc[offset:, features_back] = X.iloc[:-offset,:].to_numpy()
-      
-      # for offset in range(1, n_forward + 1):
-      #   features_forw = [f"{offset}_{i}" for i in features]
-      #   size = X_aug.shape[0]
-      #   X_aug.loc[0:offset, features_forw] =  X.iloc[-1].to_numpy()
-      #   X_aug.loc[offset:, features_forw] = X.iloc[-size + offset:,:].to_numpy()
 
       X_aug = pd.concat([df[rest_features], X_aug], axis=1)
       result.append(X_aug)
@@ -62,20 +56,18 @@ def get_recursive_features(data: List[pd.DataFrame], features = [], n_back = 1, 
   return result
 
 
-def build_dataset(fleet: List[pd.DataFrame], y_cols, meta_cols, features, n_back=1, n_forw=0, data: pd.DataFrame = None):
+def build_dataset(fleet: List[pd.DataFrame], y_cols, meta_cols, features, n_back=1, data: pd.DataFrame = None):
   if data is None:
     return get_recursive_features(
       [df[y_cols + meta_cols + features] for df in fleet],
       features, 
       n_back,
-      n_forw
     )
   else:
     return get_recursive_features(
       [data[data['acnum'] == acnum][y_cols + meta_cols + features] for acnum in fleet],
       features, 
       n_back,
-      n_forw
     )
 
 
