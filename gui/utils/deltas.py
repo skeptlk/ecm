@@ -2,8 +2,8 @@ import pandas as pd
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.pipeline import make_pipeline
-from utils import * 
-from training import * 
+from .utils import * 
+from .training import * 
 
 def train_engine_baseline(points: pd.DataFrame, x_param='n1a_peak_k', y_param='egt_peak_k', degree=1):
   model = make_pipeline(PolynomialFeatures(degree), LinearRegression())

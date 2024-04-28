@@ -2,8 +2,9 @@ from sklearn.linear_model import Ridge
 import streamlit as st 
 import pandas as pd
 import altair as alt
-from training import *
-from deltas import *
+import urllib.request
+import joblib
+from utils import *
 
 st.set_page_config(layout="wide")
 st.write('## ECM P&W1000g models')
@@ -22,12 +23,6 @@ def get_data():
     parse_dates=['reportts']
   )
 
-@st.cache_data
-def get_model():
-  return pd.read_csv(
-    "https://drive.google.com/uc?export=view&id=1puggbyIP06GcqQdMHQBGRRrGDlOVMLG3", 
-    parse_dates=['reportts']
-  )
 
 @st.cache_data
 def evaluate_model(model, acnum, acms_data):
@@ -68,12 +63,6 @@ pos = col1.radio("Engine position", [1, 2])
 is_clicked = col1.button("Predict")
 
 df = get_data().query(f'acnum=="{acnum}" and pos=={pos}')
-
-model = get_model()
-
-pred = None 
-if is_clicked:
-  pred = evaluate_model(model, acnum)
 
 leg = alt.Legend(
   title="",
